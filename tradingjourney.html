@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Optimized for Desktop, iPhone 15 Pro (393px) & iPhone 18 Pro (402px+) with Dynamic Island safe areas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Trading Journey" />
+  <meta name="theme-color" content="#09090b" />
+  <title>Trading Journey — Peam & Amko</title>
+
+  <!-- iOS Home Screen Icon -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2309090b'/><rect x='8' y='8' width='84' height='84' rx='18' fill='%23FACC15'/><text x='50' y='64' font-family='Helvetica,Arial,sans-serif' font-size='40' font-weight='bold' fill='%2309090b' text-anchor='middle'>TJ</text></svg>" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            apple: {
+              bg: '#09090b',
+              card: '#141417',
+              border: '#27272a',
+              gold: '#FACC15',
+              goldHover: '#EAB308',
+              green: '#30D158',
+              red: '#FF453A',
+              grey: '#636366'
+            }
+          },
+          fontFamily: {
+            sans: ['"Helvetica Neue"', 'Helvetica', '-apple-system', 'BlinkMacSystemFont', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #09090b;
+      color: #f4f4f5;
+      font-family: "Helvetica Neue", Helvetica, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass-card {
+      background: rgba(20, 20, 23, 0.84);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .gold-glow {
+      box-shadow: 0 0 25px -5px rgba(250, 204, 21, 0.25);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.8) sepia(100%) saturate(400%) hue-rotate(5deg);
+      cursor: pointer;
+    }
+    /* Prevent iOS Safari from auto-zooming when tapping inputs on iPhone 15 Pro / 18 Pro */
+    @media screen and (max-width: 768px) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #09090b; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #FACC15; }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-apple-gold selection:text-black">
+
+  <!-- ==================== LOGIN SCREEN ==================== -->
+  <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-apple-bg px-4">
+    <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl border border-zinc-800/80">
+      <div class="flex flex-col items-center text-center mb-7">
+        <div class="w-14 h-14 rounded-2xl bg-apple-gold/15 border border-apple-gold/40 flex items-center justify-center mb-3.5 gold-glow">
+          <i data-lucide="trending-up" class="w-7 h-7 text-apple-gold"></i>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-white">Trading Journey</h1>
+        <p class="text-xs sm:text-sm text-zinc-400 mt-1">Select your account to access synced gold results</p>
+      </div>
+
+      <!-- Profile Selection: Peam & Amko -->
+      <div class="grid grid-cols-2 gap-3.5 mb-6">
+        <button type="button" onclick="selectLoginProfile('peam')" id="profBtn-peam"
+          class="flex flex-col items-center p-4 rounded-2xl border border-apple-gold bg-apple-gold/10 transition-all">
+          <div class="w-12 h-12 rounded-full bg-apple-gold text-black font-bold flex items-center justify-center text-lg mb-2 shadow">
+            P
+          </div>
+          <span class="font-semibold text-white text-sm">Peam</span>
+          <span class="text-[11px] text-apple-gold mt-0.5">Peam Account</span>
+        </button>
+
+        <button type="button" onclick="selectLoginProfile('amko')" id="profBtn-amko"
+          class="flex flex-col items-center p-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 transition-all">
+          <div class="w-12 h-12 rounded-full bg-sky-400 text-black font-bold flex items-center justify-center text-lg mb-2 shadow">
+            A
+          </div>
+          <span class="font-semibold text-white text-sm">Amko</span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Amko Account</span>
+        </button>
+      </div>
+
+      <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-zinc-400 mb-1.5">Passcode / PIN</label>
+          <input type="password" inputmode="numeric" id="loginPin" value="1234" required
+            placeholder="Enter PIN (default: 1234)"
+            class="w-full rounded-xl bg-zinc-900/90 border border-zinc-800 px-4 py-3 text-sm text-white focus:outline-none focus:border-apple-gold transition" />
+        </div>
+        <button type="submit"
+          class="w-full rounded-xl bg-apple-gold hover:bg-apple-goldHover active:scale-[0.99] text-black font-semibold py-3.5 text-sm transition shadow-lg gold-glow">
+          Enter Trading Journey
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN DASHBOARD ==================== -->
+  <div id="appScreen" class="hidden min-h-screen flex flex-col">
+    
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-30 glass-card border-b border-zinc-800/80 px-4 sm:px-6 py-3">
+      <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-3">
+        <!-- Brand & Sync Status -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-apple-gold flex items-center justify-center text-black font-bold shadow text-sm">
+            TJ
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold tracking-tight text-white text-base sm:text-lg">Trading Journey</span>
+              <span id="syncStatusBadge" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-apple-green border border-apple-green/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-apple-green animate-ping"></span>
+                Firebase Synced
+              </span>
+            </div>
+            <p class="text-[11px] text-zinc-400 hidden sm:block">Gold XAU/USD Daily Profit & Loss Tracker</p>
+          </div>
+        </div>
+
+        <!-- Active User Quick Switcher -->
+        <div class="flex items-center gap-2 ml-auto sm:ml-0">
+          <div class="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1">
+            <button onclick="switchActiveUser('peam')" id="headerSwitch-peam"
+              class="px-3 py-1.5 rounded-lg text-xs font-medium transition">
+              Peam
+            </button>
+            <button onclick="switchActiveUser('amko')" id="headerSwitch-amko"
+              class="px-3 py-1.5 rounded-lg text-xs font-medium transition">
+              Amko
+            </button>
+          </div>
+          <button onclick="logout()" title="Switch Profile / Lock"
+            class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Date Range Filter Bar (Full width on mobile, inline on desktop) -->
+        <div class="w-full lg:w-auto flex flex-wrap items-center justify-between sm:justify-start gap-2 bg-zinc-900/80 border border-zinc-800 rounded-2xl px-3 py-1.5">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="calendar-range" class="w-3.5 h-3.5 text-apple-gold"></i>
+            <span class="text-xs text-zinc-400">Range:</span>
+          </div>
+          <input type="date" id="filterStart" onchange="applyFilters()"
+            class="bg-transparent text-xs text-white focus:outline-none px-1 py-0.5" />
+          <span class="text-zinc-600 text-xs">→</span>
+          <input type="date" id="filterEnd" onchange="applyFilters()"
+            class="bg-transparent text-xs text-white focus:outline-none px-1 py-0.5" />
+          <button onclick="resetDateFilter()"
+            class="text-xs text-apple-gold hover:underline px-2 py-0.5 rounded-lg bg-apple-gold/10 font-medium">
+            All
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Layout Grid -->
+    <main class="max-w-[1600px] w-full mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 p-4 sm:p-6">
+      
+      <!-- LEFT / CENTER MAIN CONTENT (9 Columns on Desktop) -->
+      <div class="lg:col-span-9 space-y-5">
+        
+        <!-- Summary KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-zinc-400">Peam Net P/L</p>
+              <h3 id="kpiPeam" class="text-xl sm:text-2xl font-bold mt-1 text-white">$0.00</h3>
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="inline-block w-2 h-2 rounded-full bg-apple-gold"></span>
+                <span class="text-[11px] text-zinc-400">Peam Account</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-apple-gold/10 border border-apple-gold/30 flex items-center justify-center text-apple-gold font-bold">
+              P
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-zinc-400">Amko Net P/L</p>
+              <h3 id="kpiAmko" class="text-xl sm:text-2xl font-bold mt-1 text-white">$0.00</h3>
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="inline-block w-2 h-2 rounded-full bg-sky-400"></span>
+                <span class="text-[11px] text-zinc-400">Amko Account</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/30 flex items-center justify-center text-sky-400 font-bold">
+              A
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between border-apple-gold/30">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-apple-gold">Combined Total P/L</p>
+              <h3 id="kpiCombined" class="text-xl sm:text-2xl font-bold mt-1 text-white">$0.00</h3>
+              <span id="kpiTradeCount" class="text-[11px] text-zinc-400 mt-1 block">0 recorded days</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-apple-gold text-black flex items-center justify-center font-bold">
+              Σ
+            </div>
+          </div>
+        </div>
+
+        <!-- TOP GRAPH: Combined P/L of Peam & Amko -->
+        <section class="glass-card rounded-3xl p-4 sm:p-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
+                <i data-lucide="line-chart" class="w-4 h-4 text-apple-gold"></i>
+                Peam & Amko Cumulative P/L Curve (USD)
+              </h2>
+              <p class="text-[11px] text-zinc-400">Real-time synced comparison across your selected date range</p>
+            </div>
+            <div class="flex items-center gap-4 text-xs">
+              <span class="flex items-center gap-1.5 text-zinc-300">
+                <span class="w-2.5 h-2.5 rounded-sm bg-apple-gold inline-block"></span> Peam
+              </span>
+              <span class="flex items-center gap-1.5 text-zinc-300">
+                <span class="w-2.5 h-2.5 rounded-sm bg-sky-400 inline-block"></span> Amko
+              </span>
+            </div>
+          </div>
+          <div class="h-56 sm:h-64 w-full">
+            <canvas id="plChart"></canvas>
+          </div>
+        </section>
+
+        <!-- VIEW CONTROLS & CALENDAR / TABLE CONTAINER -->
+        <section class="glass-card rounded-3xl p-4 sm:p-6">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <!-- View Mode Toggle -->
+            <div class="flex items-center gap-1.5 bg-zinc-900 p-1 rounded-2xl border border-zinc-800">
+              <button onclick="setViewMode('calendar')" id="viewBtn-calendar"
+                class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-apple-gold text-black">
+                <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                Calendar
+              </button>
+              <button onclick="setViewMode('table')" id="viewBtn-table"
+                class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition text-zinc-400 hover:text-white">
+                <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                Table View
+              </button>
+            </div>
+
+            <!-- Account Filter Selector -->
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-zinc-400 hidden sm:inline">Show:</span>
+              <select id="viewAccountScope" onchange="renderAll()"
+                class="bg-zinc-900 border border-zinc-800 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-apple-gold">
+                <option value="active">Current Account</option>
+                <option value="both">Both (Peam + Amko)</option>
+                <option value="peam">Peam Only</option>
+                <option value="amko">Amko Only</option>
+              </select>
+            </div>
+
+            <!-- Month Navigator -->
+            <div id="calendarNav" class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end">
+              <button onclick="changeMonth(-1)"
+                class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <span id="calendarMonthLabel" class="text-sm font-semibold text-white min-w-[130px] text-center"></span>
+              <button onclick="changeMonth(1)"
+                class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- LEGEND -->
+          <div class="flex flex-wrap items-center gap-4 sm:gap-6 mb-4 text-[11px] text-zinc-400 border-b border-zinc-800/80 pb-3">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-apple-green"></span> Profit (+USD)
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-apple-red"></span> Loss (-USD)
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span> No Record (Grey)
+            </span>
+            <span class="ml-auto text-zinc-500 hidden md:inline">Tap any date cell to log or edit that day's result</span>
+          </div>
+
+          <!-- CALENDAR VIEW -->
+          <div id="calendarViewContainer">
+            <div class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center text-[11px] font-medium text-zinc-400 mb-2">
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 sm:gap-2"></div>
+          </div>
+
+          <!-- TABLE VIEW -->
+          <div id="tableViewContainer" class="hidden overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-400">
+                  <th class="py-3 px-3 sm:px-4">Date</th>
+                  <th class="py-3 px-3 sm:px-4">Account</th>
+                  <th class="py-3 px-3 sm:px-4">Daily Comment</th>
+                  <th class="py-3 px-3 sm:px-4 text-right">Daily Result (USD)</th>
+                  <th class="py-3 px-3 sm:px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tradesTableBody" class="divide-y divide-zinc-800/60 text-xs sm:text-sm"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- RIGHT SIDEBAR (3 Columns on Desktop): Simplified Daily Logger, Gold Spot & Clocks -->
+      <aside class="lg:col-span-3 space-y-5">
+        
+        <!-- LOG DAILY GOLD RESULT (Only Date, Final Daily Result & Comment) -->
+        <div id="tradeFormCard" class="glass-card rounded-3xl p-5 sm:p-6 border-t-2 border-t-apple-gold">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-apple-gold"></i>
+              Daily Result
+            </h2>
+            <span id="formAccountBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-apple-gold text-black font-semibold">
+              Peam
+            </span>
+          </div>
+
+          <form onsubmit="saveDailyRecord(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1">Trading Date</label>
+              <input type="date" id="tradeDate" required
+                class="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-apple-gold" />
+            </div>
+
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1">Final Daily Result in USD (+Profit / -Loss)</label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-2.5 text-zinc-400 text-sm">$</span>
+                <input type="number" step="0.01" id="tradeAmount" placeholder="e.g. 320.00 or -150.00" required
+                  class="w-full rounded-xl bg-zinc-900 border border-zinc-800 pl-8 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-apple-gold" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1">Daily Comment / Note (Optional)</label>
+              <textarea id="tradeNote" rows="2" placeholder="Write a note about today's session..."
+                class="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-apple-gold resize-none"></textarea>
+            </div>
+
+            <button type="submit" id="saveBtn"
+              class="w-full rounded-xl bg-apple-gold hover:bg-apple-goldHover active:scale-[0.99] text-black font-semibold py-3 text-sm transition shadow-md">
+              Save Daily Result
+            </button>
+          </form>
+        </div>
+
+        <!-- LIVE GOLD SPOT PRICE (USD PER TROY OUNCE) -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-apple-gold animate-pulse"></span>
+              Gold Spot (XAU/USD)
+            </span>
+            <button onclick="fetchLiveGoldSpot()" class="text-xs text-apple-gold hover:underline">Refresh</button>
+          </div>
+
+          <div class="flex flex-col my-2">
+            <div id="goldSpotPrice" class="text-2xl sm:text-3xl font-bold tracking-tight text-apple-gold">$2,684.40/oz</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-[10px] text-zinc-400 font-semibold tracking-wider uppercase">USD per troy oz</span>
+              <div id="goldSpotChange" class="text-xs font-semibold px-2 py-0.5 rounded-lg bg-apple-green/15 text-apple-green">
+                +0.42%
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-zinc-800/80 text-xs">
+            <div>
+              <span class="text-zinc-500 block">Bid (USD/oz)</span>
+              <span id="goldBid" class="text-zinc-200 font-medium">$2,684.15/oz</span>
+            </div>
+            <div class="text-right">
+              <span class="text-zinc-500 block">Ask (USD/oz)</span>
+              <span id="goldAsk" class="text-zinc-200 font-medium">$2,684.65/oz</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- WORLD TRADING CLOCKS (THAILAND, USA, GERMANY) -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+              <i data-lucide="globe" class="w-3.5 h-3.5 text-apple-gold"></i>
+              World Market Clocks
+            </h3>
+            <span class="text-[11px] text-zinc-500">Live</span>
+          </div>
+
+          <!-- Thailand -->
+          <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-white">🇹🇭 Thailand</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">ICT</span>
+              </div>
+              <p id="date-th" class="text-[11px] text-zinc-400 mt-0.5">Bangkok</p>
+            </div>
+            <div id="clock-th" class="text-base sm:text-lg font-mono font-semibold text-apple-gold">--:--:--</div>
+          </div>
+
+          <!-- Germany -->
+          <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-white">🇩🇪 Germany</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">CET</span>
+              </div>
+              <p id="date-de" class="text-[11px] text-zinc-400 mt-0.5">Berlin</p>
+            </div>
+            <div id="clock-de" class="text-base sm:text-lg font-mono font-semibold text-white">--:--:--</div>
+          </div>
+
+          <!-- USA -->
+          <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-white">🇺🇸 USA</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">EST</span>
+              </div>
+              <p id="date-us" class="text-[11px] text-zinc-400 mt-0.5">New York</p>
+            </div>
+            <div id="clock-us" class="text-base sm:text-lg font-mono font-semibold text-white">--:--:--</div>
+          </div>
+        </div>
+
+      </aside>
+    </main>
+  </div>
+
+  <!-- ==================== FIREBASE & APPLICATION SCRIPT ==================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-analytics.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      setDoc,
+      deleteDoc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+    // Your exact Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCf9vGLGhKxnhLJIrqMwcYOv0F35a9gYz4",
+      authDomain: "tradingjourney-336b5.firebaseapp.com",
+      projectId: "tradingjourney-336b5",
+      storageBucket: "tradingjourney-336b5.firebasestorage.app",
+      messagingSenderId: "333464621669",
+      appId: "1:333464621669:web:fd884af56fe9279dc5ec8c",
+      measurementId: "G-QDHJ2MGYMX"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch (_) {}
+    const db = getFirestore(app);
+    const TRADES_COLLECTION = "daily_trades";
+    const LOCAL_BACKUP_KEY = "trading_journey_local_backup_v1";
+
+    // --- APP STATE ---
+    let selectedLoginUser = 'peam';
+    let activeUser = 'peam'; // 'peam' | 'amko'
+    let currentView = 'calendar';
+    let currentCalendarDate = new Date();
+    let plChartInstance = null;
+    let baseGoldSpot = 2684.40;
+    let trades = [];
+    let isFirebaseConnected = false;
+
+    const accountMeta = {
+      peam: { name: "Peam", badgeClass: "bg-apple-gold text-black", color: "#FACC15" },
+      amko: { name: "Amko", badgeClass: "bg-sky-400 text-black", color: "#38BDF8" }
+    };
+
+    // --- REAL-TIME FIREBASE LISTENER ---
+    function startRealtimeSync() {
+      const badge = document.getElementById('syncStatusBadge');
+      try {
+        const colRef = collection(db, TRADES_COLLECTION);
+        onSnapshot(colRef, (snapshot) => {
+          isFirebaseConnected = true;
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-apple-green animate-ping"></span> Live Synced`;
+          badge.className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-apple-green border border-apple-green/30 flex items-center gap-1";
+
+          const loaded = [];
+          snapshot.forEach(docSnap => {
+            loaded.push({ id: docSnap.id, ...docSnap.data() });
+          });
+
+          trades = loaded;
+          localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(trades));
+          renderAll();
+        }, (err) => {
+          console.warn("Firestore listener fallback to local cache:", err.message);
+          useOfflineFallback();
+        });
+      } catch (e) {
+        useOfflineFallback();
+      }
+    }
+
+    function useOfflineFallback() {
+      const badge = document.getElementById('syncStatusBadge');
+      badge.innerHTML = `Local Mode (Enable Firestore in Console)`;
+      badge.className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/15 text-apple-gold border border-apple-gold/30";
+      const cached = localStorage.getItem(LOCAL_BACKUP_KEY);
+      trades = cached ? JSON.parse(cached) : [];
+      renderAll();
+    }
+
+    // --- LOGIN & PROFILE SWITCHING ---
+    window.selectLoginProfile = function(profile) {
+      selectedLoginUser = profile;
+      const pBtn = document.getElementById('profBtn-peam');
+      const aBtn = document.getElementById('profBtn-amko');
+
+      if (profile === 'peam') {
+        pBtn.className = "flex flex-col items-center p-4 rounded-2xl border border-apple-gold bg-apple-gold/10 transition-all";
+        aBtn.className = "flex flex-col items-center p-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 transition-all";
+      } else {
+        aBtn.className = "flex flex-col items-center p-4 rounded-2xl border border-sky-400 bg-sky-400/10 transition-all";
+        pBtn.className = "flex flex-col items-center p-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 transition-all";
+      }
+    };
+
+    window.handleLogin = function(e) {
+      e.preventDefault();
+      activeUser = selectedLoginUser;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+      initDefaultDates();
+      window.switchActiveUser(activeUser);
+    };
+
+    window.logout = function() {
+      document.getElementById('appScreen').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+    };
+
+    window.switchActiveUser = function(user) {
+      activeUser = user;
+      const pSwitch = document.getElementById('headerSwitch-peam');
+      const aSwitch = document.getElementById('headerSwitch-amko');
+      const badge = document.getElementById('formAccountBadge');
+
+      if (user === 'peam') {
+        pSwitch.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-apple-gold text-black transition";
+        aSwitch.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white transition";
+      } else {
+        aSwitch.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-400 text-black transition";
+        pSwitch.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white transition";
+      }
+
+      badge.textContent = accountMeta[user].name;
+      badge.className = `text-xs px-2.5 py-0.5 rounded-full font-semibold ${accountMeta[user].badgeClass}`;
+      renderAll();
+    };
+
+    // --- DATE FILTERS ---
+    function initDefaultDates() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const todayStr = now.toISOString().split('T')[0];
+
+      document.getElementById('tradeDate').value = todayStr;
+      document.getElementById('filterStart').value = `${y}-${m}-01`;
+      const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+      document.getElementById('filterEnd').value = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
+    }
+
+    function getFilteredTrades() {
+      const start = document.getElementById('filterStart').value;
+      const end = document.getElementById('filterEnd').value;
+
+      return trades.filter(t => {
+        if (start && t.date < start) return false;
+        if (end && t.date > end) return false;
+        return true;
+      }).sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    window.applyFilters = function() {
+      const startVal = document.getElementById('filterStart').value;
+      if (startVal) {
+        const parts = startVal.split('-');
+        currentCalendarDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+      }
+      renderAll();
+    };
+
+    window.resetDateFilter = function() {
+      document.getElementById('filterStart').value = '';
+      document.getElementById('filterEnd').value = '';
+      currentCalendarDate = new Date();
+      renderAll();
+    };
+
+    // --- SAVE & DELETE DAILY RECORD (FIREBASE + LOCAL FALLBACK) ---
+    window.saveDailyRecord = async function(e) {
+      e.preventDefault();
+      const date = document.getElementById('tradeDate').value;
+      const amount = parseFloat(document.getElementById('tradeAmount').value);
+      const note = document.getElementById('tradeNote').value.trim();
+
+      if (!date || isNaN(amount)) return;
+
+      // Unique ID per user + date so logging on the same date updates that day's record cleanly
+      const recordId = `${activeUser}_${date}`;
+      const recordData = {
+        date,
+        user: activeUser,
+        amount,
+        note,
+        updatedAt: Date.now()
+      };
+
+      const btn = document.getElementById('saveBtn');
+      btn.textContent = "Syncing...";
+
+      // Optimistic local update
+      const existingIndex = trades.findIndex(t => t.id === recordId);
+      if (existingIndex >= 0) {
+        trades[existingIndex] = { id: recordId, ...recordData };
+      } else {
+        trades.push({ id: recordId, ...recordData });
+      }
+      localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(trades));
+      renderAll();
+
+      try {
+        await setDoc(doc(db, TRADES_COLLECTION, recordId), recordData);
+      } catch (err) {
+        console.warn("Saved locally (Firestore write pending):", err.message);
+      }
+
+      btn.textContent = "Save Daily Result";
+      document.getElementById('tradeAmount').value = '';
+      document.getElementById('tradeNote').value = '';
+    };
+
+    window.deleteTrade = async function(id) {
+      trades = trades.filter(t => t.id !== id);
+      localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(trades));
+      renderAll();
+      try {
+        await deleteDoc(doc(db, TRADES_COLLECTION, String(id)));
+      } catch (err) {
+        console.warn("Deleted locally:", err.message);
+      }
+    };
+
+    // --- FORMAT CURRENCY ---
+    function formatUSD(val) {
+      const sign = val > 0 ? '+' : val < 0 ? '-' : '';
+      return `${sign}$${Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function formatCompactUSD(val) {
+      const sign = val > 0 ? '+' : val < 0 ? '-' : '';
+      const abs = Math.abs(val);
+      if (abs >= 1000) {
+        return `${sign}$${(abs / 1000).toFixed(1)}k`;
+      }
+      return `${sign}$${abs.toFixed(0)}`;
+    }
+
+    // --- RENDER KPI SUMMARY ---
+    function renderKPIs(filtered) {
+      const peamSum = filtered.filter(t => t.user === 'peam').reduce((s, t) => s + Number(t.amount), 0);
+      const amkoSum = filtered.filter(t => t.user === 'amko').reduce((s, t) => s + Number(t.amount), 0);
+      const combined = peamSum + amkoSum;
+
+      const elP = document.getElementById('kpiPeam');
+      const elA = document.getElementById('kpiAmko');
+      const elC = document.getElementById('kpiCombined');
+
+      elP.textContent = formatUSD(peamSum);
+      elP.className = `text-xl sm:text-2xl font-bold mt-1 ${peamSum > 0 ? 'text-apple-green' : peamSum < 0 ? 'text-apple-red' : 'text-zinc-300'}`;
+
+      elA.textContent = formatUSD(amkoSum);
+      elA.className = `text-xl sm:text-2xl font-bold mt-1 ${amkoSum > 0 ? 'text-apple-green' : amkoSum < 0 ? 'text-apple-red' : 'text-zinc-300'}`;
+
+      elC.textContent = formatUSD(combined);
+      elC.className = `text-xl sm:text-2xl font-bold mt-1 ${combined > 0 ? 'text-apple-green' : combined < 0 ? 'text-apple-red' : 'text-zinc-300'}`;
+
+      document.getElementById('kpiTradeCount').textContent = `${filtered.length} recorded days`;
+    }
+
+    // --- RENDER TOP DUAL-ACCOUNT CHART ---
+    function renderChart(filtered) {
+      const datesSet = new Set(filtered.map(t => t.date));
+      const sortedDates = Array.from(datesSet).sort();
+
+      let cumPeam = 0;
+      let cumAmko = 0;
+      const peamData = [];
+      const amkoData = [];
+
+      sortedDates.forEach(d => {
+        const dayP = filtered.filter(t => t.date === d && t.user === 'peam').reduce((s, t) => s + Number(t.amount), 0);
+        const dayA = filtered.filter(t => t.date === d && t.user === 'amko').reduce((s, t) => s + Number(t.amount), 0);
+        cumPeam += dayP;
+        cumAmko += dayA;
+        peamData.push(cumPeam);
+        amkoData.push(cumAmko);
+      });
+
+      const ctx = document.getElementById('plChart').getContext('2d');
+      if (plChartInstance) plChartInstance.destroy();
+
+      plChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: sortedDates.length ? sortedDates : ['No Data Yet'],
+          datasets: [
+            {
+              label: "Peam (Cumulative USD)",
+              data: sortedDates.length ? peamData : [0],
+              borderColor: '#FACC15',
+              backgroundColor: 'rgba(250, 204, 21, 0.12)',
+              borderWidth: 2.5,
+              tension: 0.35,
+              fill: true,
+              pointRadius: 4,
+              pointBackgroundColor: '#FACC15'
+            },
+            {
+              label: "Amko (Cumulative USD)",
+              data: sortedDates.length ? amkoData : [0],
+              borderColor: '#38BDF8',
+              backgroundColor: 'rgba(56, 189, 248, 0.08)',
+              borderWidth: 2.5,
+              tension: 0.35,
+              fill: true,
+              pointRadius: 4,
+              pointBackgroundColor: '#38BDF8'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#18181b',
+              borderColor: '#27272a',
+              borderWidth: 1,
+              titleColor: '#f4f4f5',
+              bodyColor: '#e4e4e7',
+              callbacks: {
+                label: (ctx) => `${ctx.dataset.label}: ${formatUSD(ctx.parsed.y)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: { color: '#a1a1aa', font: { size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#a1a1aa',
+                font: { size: 10 },
+                callback: (v) => '$' + v
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // --- HELPER: FILTER BY SCOPE ---
+    function getScopedTrades(list) {
+      const scope = document.getElementById('viewAccountScope').value;
+      if (scope === 'both') return list;
+      if (scope === 'active') return list.filter(t => t.user === activeUser);
+      return list.filter(t => t.user === scope);
+    }
+
+    // --- RENDER CALENDAR VIEW ---
+    window.changeMonth = function(offset) {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
+      renderCalendar(getFilteredTrades());
+    };
+
+    function renderCalendar(filtered) {
+      const scoped = getScopedTrades(filtered);
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      document.getElementById('calendarMonthLabel').textContent = `${monthNames[month]} ${year}`;
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const empty = document.createElement('div');
+        empty.className = "h-20 sm:h-28 rounded-xl sm:rounded-2xl bg-zinc-950/40 border border-zinc-900/50";
+        grid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayTrades = scoped.filter(t => t.date === dateStr);
+        const hasRecord = dayTrades.length > 0;
+        const netPL = dayTrades.reduce((sum, t) => sum + Number(t.amount), 0);
+
+        const dayNotes = dayTrades.map(t => t.note).filter(Boolean);
+        const notesSnippet = dayNotes.join(" • ");
+
+        let cardStyle = "bg-zinc-900/50 border-zinc-800/80 text-apple-grey hover:border-zinc-700";
+        let badgeStyle = "text-zinc-500";
+        let desktopFigure = "No Record";
+        let mobileFigure = "—";
+
+        if (hasRecord) {
+          if (netPL > 0) {
+            cardStyle = "bg-emerald-950/30 border-apple-green/40 hover:border-apple-green";
+            badgeStyle = "text-apple-green font-bold";
+            desktopFigure = formatUSD(netPL);
+            mobileFigure = formatCompactUSD(netPL);
+          } else if (netPL < 0) {
+            cardStyle = "bg-rose-950/30 border-apple-red/40 hover:border-apple-red";
+            badgeStyle = "text-apple-red font-bold";
+            desktopFigure = formatUSD(netPL);
+            mobileFigure = formatCompactUSD(netPL);
+          } else {
+            cardStyle = "bg-zinc-900 border-zinc-700";
+            badgeStyle = "text-zinc-300 font-semibold";
+            desktopFigure = "$0.00";
+            mobileFigure = "$0";
+          }
+        }
+
+        const cell = document.createElement('div');
+        cell.className = `h-20 sm:h-28 rounded-xl sm:rounded-2xl border p-1.5 sm:p-2.5 flex flex-col justify-between cursor-pointer transition ${cardStyle}`;
+        cell.onclick = () => {
+          document.getElementById('tradeDate').value = dateStr;
+          const existingForActive = trades.find(t => t.date === dateStr && t.user === activeUser);
+          document.getElementById('tradeAmount').value = existingForActive ? existingForActive.amount : '';
+          document.getElementById('tradeNote').value = existingForActive ? (existingForActive.note || '') : '';
+          document.getElementById('tradeFormCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => document.getElementById('tradeAmount').focus(), 300);
+        };
+
+        cell.innerHTML = `
+          <div class="flex items-start justify-between">
+            <span class="text-[11px] sm:text-xs font-semibold text-zinc-300">${day}</span>
+            ${hasRecord && notesSnippet ? `<span class="w-1.5 h-1.5 rounded-full bg-apple-gold sm:hidden" title="Has comment"></span>` : ''}
+          </div>
+          <div class="hidden sm:block flex-1 my-1 overflow-hidden">
+            <p class="text-[10px] text-zinc-400 line-clamp-2 leading-tight italic break-words">${notesSnippet}</p>
+          </div>
+          <div class="text-right">
+            <div class="hidden sm:block text-xs font-bold tracking-tight ${badgeStyle}">${desktopFigure}</div>
+            <div class="sm:hidden text-[10px] font-bold tracking-tighter ${badgeStyle}">${mobileFigure}</div>
+          </div>
+        `;
+        grid.appendChild(cell);
+      }
+    }
+
+    // --- RENDER TABLE VIEW ---
+    function renderTable(filtered) {
+      const scoped = getScopedTrades(filtered);
+      const tbody = document.getElementById('tradesTableBody');
+      tbody.innerHTML = '';
+
+      if (scoped.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-zinc-500 text-sm">
+              No daily records found in this date range.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      scoped.slice().reverse().forEach(t => {
+        const amt = Number(t.amount);
+        const amountClass = amt > 0 ? 'text-apple-green font-semibold' : amt < 0 ? 'text-apple-red font-semibold' : 'text-zinc-400';
+        const userBadge = t.user === 'peam'
+          ? `<span class="px-2 py-0.5 rounded-full text-[11px] bg-apple-gold/15 text-apple-gold border border-apple-gold/30 font-medium">Peam</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[11px] bg-sky-400/15 text-sky-400 border border-sky-400/30 font-medium">Amko</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-zinc-900/50 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-3 sm:px-4 font-medium text-zinc-200 whitespace-nowrap">${t.date}</td>
+          <td class="py-3 px-3 sm:px-4 whitespace-nowrap">${userBadge}</td>
+          <td class="py-3 px-3 sm:px-4 text-xs text-zinc-400 max-w-xs break-words">${t.note || '<span class="text-zinc-600">—</span>'}</td>
+          <td class="py-3 px-3 sm:px-4 text-right whitespace-nowrap ${amountClass}">${formatUSD(amt)}</td>
+          <td class="py-3 px-3 sm:px-4 text-right whitespace-nowrap">
+            <button onclick="deleteTrade('${t.id}')" class="text-xs text-zinc-500 hover:text-apple-red transition">
+              Delete
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // --- VIEW MODE TOGGLE ---
+    window.setViewMode = function(mode) {
+      currentView = mode;
+      const calBtn = document.getElementById('viewBtn-calendar');
+      const tabBtn = document.getElementById('viewBtn-table');
+      const calContainer = document.getElementById('calendarViewContainer');
+      const tabContainer = document.getElementById('tableViewContainer');
+      const calNav = document.getElementById('calendarNav');
+
+      if (mode === 'calendar') {
+        calBtn.className = "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-apple-gold text-black";
+        tabBtn.className = "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition text-zinc-400 hover:text-white";
+        calContainer.classList.remove('hidden');
+        tabContainer.classList.add('hidden');
+        calNav.classList.remove('hidden');
+      } else {
+        tabBtn.className = "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-apple-gold text-black";
+        calBtn.className = "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition text-zinc-400 hover:text-white";
+        tabContainer.classList.remove('hidden');
+        calContainer.classList.add('hidden');
+        calNav.classList.add('hidden');
+      }
+      renderAll();
+    };
+
+    window.renderAll = function() {
+      const filtered = getFilteredTrades();
+      renderKPIs(filtered);
+      renderChart(filtered);
+      renderCalendar(filtered);
+      renderTable(filtered);
+    };
+
+    // --- WORLD CLOCKS (THAILAND, USA, GERMANY) ---
+    function updateWorldClocks() {
+      const now = new Date();
+      const zones = [
+        { id: 'th', tz: 'Asia/Bangkok', label: 'Bangkok' },
+        { id: 'de', tz: 'Europe/Berlin', label: 'Berlin' },
+        { id: 'us', tz: 'America/New_York', label: 'New York' }
+      ];
+
+      zones.forEach(z => {
+        const timeStr = new Intl.DateTimeFormat('en-GB', {
+          timeZone: z.tz,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        }).format(now);
+
+        const dateStr = new Intl.DateTimeFormat('en-US', {
+          timeZone: z.tz,
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric'
+        }).format(now);
+
+        document.getElementById(`clock-${z.id}`).textContent = timeStr;
+        document.getElementById(`date-${z.id}`).textContent = `${z.label} • ${dateStr}`;
+      });
+    }
+
+    // --- LIVE GOLD SPOT PRICE (USD PER TROY OUNCE) ---
+    window.fetchLiveGoldSpot = async function() {
+      try {
+        const res = await fetch('https://api.exchangerate-api.com/v4/latest/XAU');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.rates && data.rates.USD) {
+            baseGoldSpot = parseFloat(data.rates.USD);
+          }
+        }
+      } catch (_) {}
+      tickGoldPrice();
+    };
+
+    function tickGoldPrice() {
+      const delta = (Math.random() - 0.48) * 1.15;
+      baseGoldSpot = Math.max(2000, baseGoldSpot + delta);
+      const bid = baseGoldSpot - 0.25;
+      const ask = baseGoldSpot + 0.25;
+      const pctChange = ((baseGoldSpot - 2672.00) / 2672.00) * 100;
+
+      document.getElementById('goldSpotPrice').textContent = `$${baseGoldSpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
+      document.getElementById('goldBid').textContent = `$${bid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
+      document.getElementById('goldAsk').textContent = `$${ask.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
+
+      const changeEl = document.getElementById('goldSpotChange');
+      const sign = pctChange >= 0 ? '+' : '';
+      changeEl.textContent = `${sign}${pctChange.toFixed(2)}%`;
+      changeEl.className = pctChange >= 0
+        ? "text-xs font-semibold px-2 py-0.5 rounded-lg bg-apple-green/15 text-apple-green"
+        : "text-xs font-semibold px-2 py-0.5 rounded-lg bg-apple-red/15 text-apple-red";
+    }
+
+    // --- INITIALIZE ---
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      updateWorldClocks();
+      setInterval(updateWorldClocks, 1000);
+      window.fetchLiveGoldSpot();
+      setInterval(tickGoldPrice, 3500);
+      startRealtimeSync();
+    });
+  </script>
+</body>
+</html>
