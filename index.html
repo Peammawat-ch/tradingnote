@@ -233,6 +233,83 @@
           </div>
         </div>
 
+        <!-- WEEKLY GOALS TRACKER (PEAM & AMKO) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- Peam Weekly Goal -->
+          <div class="glass-card rounded-2xl p-4 sm:p-5 border border-zinc-800/80">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-apple-gold"></span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Peam This Week Goal</span>
+              </div>
+              <button onclick="toggleGoalEdit('peam')" class="text-[11px] text-apple-gold hover:underline flex items-center gap-1">
+                <i data-lucide="target" class="w-3 h-3"></i>
+                <span id="goalEditBtnText-peam">Edit Goal</span>
+              </button>
+            </div>
+
+            <!-- Edit Input Row (Hidden by default) -->
+            <div id="goalEditRow-peam" class="hidden flex items-center gap-2 my-2">
+              <input type="number" step="10" id="goalInput-peam" placeholder="Weekly target in USD (e.g. 500)"
+                class="w-full rounded-xl bg-zinc-900 border border-zinc-700 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-apple-gold" />
+              <button onclick="saveWeeklyGoal('peam')"
+                class="px-3 py-1.5 rounded-xl bg-apple-gold text-black font-semibold text-xs whitespace-nowrap">
+                Save
+              </button>
+            </div>
+
+            <div class="flex items-baseline justify-between mt-1">
+              <div>
+                <span id="weekActual-peam" class="text-lg sm:text-xl font-bold text-white">$0.00</span>
+                <span class="text-xs text-zinc-400"> / <span id="weekTarget-peam">$500.00</span></span>
+              </div>
+              <span id="weekPct-peam" class="text-xs font-semibold text-apple-gold">0%</span>
+            </div>
+
+            <div class="w-full h-2 rounded-full bg-zinc-800 overflow-hidden mt-2.5">
+              <div id="weekBar-peam" class="h-full bg-apple-gold transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p id="weekStatus-peam" class="text-[11px] text-zinc-400 mt-1.5">This week (Mon–Sun)</p>
+          </div>
+
+          <!-- Amko Weekly Goal -->
+          <div class="glass-card rounded-2xl p-4 sm:p-5 border border-zinc-800/80">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Amko This Week Goal</span>
+              </div>
+              <button onclick="toggleGoalEdit('amko')" class="text-[11px] text-sky-400 hover:underline flex items-center gap-1">
+                <i data-lucide="target" class="w-3 h-3"></i>
+                <span id="goalEditBtnText-amko">Edit Goal</span>
+              </button>
+            </div>
+
+            <!-- Edit Input Row (Hidden by default) -->
+            <div id="goalEditRow-amko" class="hidden flex items-center gap-2 my-2">
+              <input type="number" step="10" id="goalInput-amko" placeholder="Weekly target in USD (e.g. 500)"
+                class="w-full rounded-xl bg-zinc-900 border border-zinc-700 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-400" />
+              <button onclick="saveWeeklyGoal('amko')"
+                class="px-3 py-1.5 rounded-xl bg-sky-400 text-black font-semibold text-xs whitespace-nowrap">
+                Save
+              </button>
+            </div>
+
+            <div class="flex items-baseline justify-between mt-1">
+              <div>
+                <span id="weekActual-amko" class="text-lg sm:text-xl font-bold text-white">$0.00</span>
+                <span class="text-xs text-zinc-400"> / <span id="weekTarget-amko">$500.00</span></span>
+              </div>
+              <span id="weekPct-amko" class="text-xs font-semibold text-sky-400">0%</span>
+            </div>
+
+            <div class="w-full h-2 rounded-full bg-zinc-800 overflow-hidden mt-2.5">
+              <div id="weekBar-amko" class="h-full bg-sky-400 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p id="weekStatus-amko" class="text-[11px] text-zinc-400 mt-1.5">This week (Mon–Sun)</p>
+          </div>
+        </div>
+
         <!-- TOP GRAPH: Combined P/L of Peam & Amko -->
         <section class="glass-card rounded-3xl p-4 sm:p-6">
           <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -311,7 +388,7 @@
             <span class="flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span> No Record (Grey)
             </span>
-            <span class="ml-auto text-zinc-500 hidden md:inline">Tap any date cell to log or edit that day's result</span>
+            <span class="ml-auto text-zinc-500 hidden md:inline">Tap any date cell to log, edit, or clear that day's result</span>
           </div>
 
           <!-- CALENDAR VIEW -->
@@ -340,10 +417,10 @@
         </section>
       </div>
 
-      <!-- RIGHT SIDEBAR (3 Columns on Desktop): Simplified Daily Logger, Gold Spot & Clocks -->
+      <!-- RIGHT SIDEBAR (3 Columns on Desktop): Daily Logger, Gold Spot, Session Countdowns & Clocks -->
       <aside class="lg:col-span-3 space-y-5">
         
-        <!-- LOG DAILY GOLD RESULT (Only Date, Final Daily Result & Comment) -->
+        <!-- LOG DAILY GOLD RESULT (Supports Empty Save to Reset Day) -->
         <div id="tradeFormCard" class="glass-card rounded-3xl p-5 sm:p-6 border-t-2 border-t-apple-gold">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
@@ -358,17 +435,23 @@
           <form onsubmit="saveDailyRecord(event)" class="space-y-4">
             <div>
               <label class="block text-xs text-zinc-400 mb-1">Trading Date</label>
-              <input type="date" id="tradeDate" required
+              <input type="date" id="tradeDate" required onchange="loadSelectedDateRecord()"
                 class="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-apple-gold" />
             </div>
 
             <div>
-              <label class="block text-xs text-zinc-400 mb-1">Final Daily Result in USD (+Profit / -Loss)</label>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs text-zinc-400">Final Daily Result in USD</label>
+                <button type="button" onclick="clearFormInputs()" class="text-[11px] text-apple-gold hover:underline">
+                  Clear Input
+                </button>
+              </div>
               <div class="relative">
                 <span class="absolute left-3.5 top-2.5 text-zinc-400 text-sm">$</span>
-                <input type="number" step="0.01" id="tradeAmount" placeholder="e.g. 320.00 or -150.00" required
+                <input type="number" step="0.01" id="tradeAmount" placeholder="Leave empty & save to clear day"
                   class="w-full rounded-xl bg-zinc-900 border border-zinc-800 pl-8 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-apple-gold" />
               </div>
+              <p class="text-[10px] text-zinc-500 mt-1">Tip: Leave empty and click Save to reset the day to "No Record".</p>
             </div>
 
             <div>
@@ -377,10 +460,16 @@
                 class="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-apple-gold resize-none"></textarea>
             </div>
 
-            <button type="submit" id="saveBtn"
-              class="w-full rounded-xl bg-apple-gold hover:bg-apple-goldHover active:scale-[0.99] text-black font-semibold py-3 text-sm transition shadow-md">
-              Save Daily Result
-            </button>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="submit" id="saveBtn"
+                class="col-span-2 rounded-xl bg-apple-gold hover:bg-apple-goldHover active:scale-[0.99] text-black font-semibold py-3 text-sm transition shadow-md">
+                Save Daily Result
+              </button>
+              <button type="button" onclick="clearAndSaveDay()" title="Clear input and reset this date to No Record"
+                class="col-span-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium py-3 text-xs transition border border-zinc-700">
+                Reset Day
+              </button>
+            </div>
           </form>
         </div>
 
@@ -407,11 +496,67 @@
           <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-zinc-800/80 text-xs">
             <div>
               <span class="text-zinc-500 block">Bid (USD/oz)</span>
-              <span id="goldBid" class="text-zinc-200 font-medium">$2,684.15/oz</span>
+              <span id="goldBid" class="text-zinc-200 font-medium">$2,684.10/oz</span>
             </div>
             <div class="text-right">
               <span class="text-zinc-500 block">Ask (USD/oz)</span>
-              <span id="goldAsk" class="text-zinc-200 font-medium">$2,684.65/oz</span>
+              <span id="goldAsk" class="text-zinc-200 font-medium">$2,684.70/oz</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRADING SESSIONS COUNTDOWN (ASIA, LONDON, NEW YORK) -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+              <i data-lucide="timer" class="w-3.5 h-3.5 text-apple-gold"></i>
+              Trading Sessions
+            </h3>
+            <span class="text-[10px] text-zinc-500">Countdown</span>
+          </div>
+
+          <!-- Asia Session -->
+          <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-white">🌏 Asia</span>
+                <span id="sessStatus-asia" class="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-zinc-800 text-zinc-400">--</span>
+              </div>
+              <p id="sessSub-asia" class="text-[11px] text-zinc-400 mt-0.5">Tokyo • 07:00–16:00 ICT</p>
+            </div>
+            <div class="text-right">
+              <div id="sessTimer-asia" class="text-sm sm:text-base font-mono font-semibold text-apple-gold">--:--:--</div>
+              <span id="sessLabel-asia" class="text-[10px] text-zinc-500 block">until open</span>
+            </div>
+          </div>
+
+          <!-- London Session -->
+          <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-white">🇬🇧 London</span>
+                <span id="sessStatus-london" class="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-zinc-800 text-zinc-400">--</span>
+              </div>
+              <p id="sessSub-london" class="text-[11px] text-zinc-400 mt-0.5">London • 08:00–17:00 LDN</p>
+            </div>
+            <div class="text-right">
+              <div id="sessTimer-london" class="text-sm sm:text-base font-mono font-semibold text-white">--:--:--</div>
+              <span id="sessLabel-london" class="text-[10px] text-zinc-500 block">until open</span>
+            </div>
+          </div>
+
+          <!-- New York Session -->
+          <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-white">🗽 New York</span>
+                <span id="sessStatus-ny" class="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-zinc-800 text-zinc-400">--</span>
+              </div>
+              <p id="sessSub-ny" class="text-[11px] text-zinc-400 mt-0.5">New York • 08:00–17:00 NY</p>
+            </div>
+            <div class="text-right">
+              <div id="sessTimer-ny" class="text-sm sm:text-base font-mono font-semibold text-white">--:--:--</div>
+              <span id="sessLabel-ny" class="text-[10px] text-zinc-500 block">until open</span>
             </div>
           </div>
         </div>
@@ -495,7 +640,9 @@
     try { getAnalytics(app); } catch (_) {}
     const db = getFirestore(app);
     const TRADES_COLLECTION = "daily_trades";
+    const GOALS_COLLECTION = "user_goals";
     const LOCAL_BACKUP_KEY = "trading_journey_local_backup_v1";
+    const LOCAL_GOALS_KEY = "trading_journey_goals_v1";
 
     // --- APP STATE ---
     let selectedLoginUser = 'peam';
@@ -505,20 +652,25 @@
     let plChartInstance = null;
     let baseGoldSpot = 2684.40;
     let trades = [];
-    let isFirebaseConnected = false;
+    let weeklyGoals = { peam: 500, amko: 500 };
+
+    // Load saved local goals immediately
+    try {
+      const savedGoals = localStorage.getItem(LOCAL_GOALS_KEY);
+      if (savedGoals) weeklyGoals = { ...weeklyGoals, ...JSON.parse(savedGoals) };
+    } catch (_) {}
 
     const accountMeta = {
       peam: { name: "Peam", badgeClass: "bg-apple-gold text-black", color: "#FACC15" },
       amko: { name: "Amko", badgeClass: "bg-sky-400 text-black", color: "#38BDF8" }
     };
 
-    // --- REAL-TIME FIREBASE LISTENER ---
+    // --- REAL-TIME FIREBASE LISTENER (TRADES & WEEKLY GOALS) ---
     function startRealtimeSync() {
       const badge = document.getElementById('syncStatusBadge');
       try {
         const colRef = collection(db, TRADES_COLLECTION);
         onSnapshot(colRef, (snapshot) => {
-          isFirebaseConnected = true;
           badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-apple-green animate-ping"></span> Live Synced`;
           badge.className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-apple-green border border-apple-green/30 flex items-center gap-1";
 
@@ -534,6 +686,19 @@
           console.warn("Firestore listener fallback to local cache:", err.message);
           useOfflineFallback();
         });
+
+        // Sync Weekly Goals collection
+        const goalsRef = collection(db, GOALS_COLLECTION);
+        onSnapshot(goalsRef, (snapshot) => {
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data && typeof data.weeklyGoal === 'number') {
+              weeklyGoals[docSnap.id] = data.weeklyGoal;
+            }
+          });
+          localStorage.setItem(LOCAL_GOALS_KEY, JSON.stringify(weeklyGoals));
+          renderWeeklyGoals();
+        }, () => {});
       } catch (e) {
         useOfflineFallback();
       }
@@ -593,21 +758,43 @@
 
       badge.textContent = accountMeta[user].name;
       badge.className = `text-xs px-2.5 py-0.5 rounded-full font-semibold ${accountMeta[user].badgeClass}`;
+      window.loadSelectedDateRecord();
       renderAll();
     };
 
-    // --- DATE FILTERS ---
+    // --- DATE FILTERS & INPUT HELPERS ---
     function initDefaultDates() {
       const now = new Date();
       const y = now.getFullYear();
       const m = String(now.getMonth() + 1).padStart(2, '0');
-      const todayStr = now.toISOString().split('T')[0];
+      const d = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${y}-${m}-${d}`;
 
       document.getElementById('tradeDate').value = todayStr;
       document.getElementById('filterStart').value = `${y}-${m}-01`;
       const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
       document.getElementById('filterEnd').value = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
     }
+
+    window.loadSelectedDateRecord = function() {
+      const dateStr = document.getElementById('tradeDate').value;
+      if (!dateStr) return;
+      const existing = trades.find(t => t.date === dateStr && t.user === activeUser);
+      document.getElementById('tradeAmount').value = existing ? existing.amount : '';
+      document.getElementById('tradeNote').value = existing ? (existing.note || '') : '';
+    };
+
+    window.clearFormInputs = function() {
+      document.getElementById('tradeAmount').value = '';
+      document.getElementById('tradeNote').value = '';
+      document.getElementById('tradeAmount').focus();
+    };
+
+    window.clearAndSaveDay = async function() {
+      document.getElementById('tradeAmount').value = '';
+      document.getElementById('tradeNote').value = '';
+      await window.saveDailyRecord(new Event('submit'));
+    };
 
     function getFilteredTrades() {
       const start = document.getElementById('filterStart').value;
@@ -636,17 +823,39 @@
       renderAll();
     };
 
-    // --- SAVE & DELETE DAILY RECORD (FIREBASE + LOCAL FALLBACK) ---
+    // --- SAVE, CLEAR & DELETE DAILY RECORD (ALLOWS EMPTY INPUT TO REMOVE RECORD) ---
     window.saveDailyRecord = async function(e) {
-      e.preventDefault();
+      if (e && e.preventDefault) e.preventDefault();
       const date = document.getElementById('tradeDate').value;
-      const amount = parseFloat(document.getElementById('tradeAmount').value);
+      const rawAmount = document.getElementById('tradeAmount').value.trim();
       const note = document.getElementById('tradeNote').value.trim();
 
-      if (!date || isNaN(amount)) return;
+      if (!date) return;
 
-      // Unique ID per user + date so logging on the same date updates that day's record cleanly
       const recordId = `${activeUser}_${date}`;
+      const btn = document.getElementById('saveBtn');
+
+      // If amount input is empty, remove the record so the calendar shows "No Record"
+      if (rawAmount === '') {
+        btn.textContent = "Clearing...";
+        trades = trades.filter(t => t.id !== recordId);
+        localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(trades));
+        renderAll();
+
+        try {
+          await deleteDoc(doc(db, TRADES_COLLECTION, recordId));
+        } catch (err) {
+          console.warn("Cleared locally:", err.message);
+        }
+
+        btn.textContent = "Save Daily Result";
+        document.getElementById('tradeNote').value = '';
+        return;
+      }
+
+      const amount = parseFloat(rawAmount);
+      if (isNaN(amount)) return;
+
       const recordData = {
         date,
         user: activeUser,
@@ -655,7 +864,6 @@
         updatedAt: Date.now()
       };
 
-      const btn = document.getElementById('saveBtn');
       btn.textContent = "Syncing...";
 
       // Optimistic local update
@@ -689,6 +897,88 @@
         console.warn("Deleted locally:", err.message);
       }
     };
+
+    // --- WEEKLY GOALS LOGIC (PEAM & AMKO) ---
+    window.toggleGoalEdit = function(user) {
+      const row = document.getElementById(`goalEditRow-${user}`);
+      const input = document.getElementById(`goalInput-${user}`);
+      const btnText = document.getElementById(`goalEditBtnText-${user}`);
+      if (row.classList.contains('hidden')) {
+        row.classList.remove('hidden');
+        input.value = weeklyGoals[user] || 500;
+        input.focus();
+        btnText.textContent = 'Close';
+      } else {
+        row.classList.add('hidden');
+        btnText.textContent = 'Edit Goal';
+      }
+    };
+
+    window.saveWeeklyGoal = async function(user) {
+      const input = document.getElementById(`goalInput-${user}`);
+      const val = parseFloat(input.value);
+      if (isNaN(val) || val <= 0) return;
+
+      weeklyGoals[user] = val;
+      localStorage.setItem(LOCAL_GOALS_KEY, JSON.stringify(weeklyGoals));
+      document.getElementById(`goalEditRow-${user}`).classList.add('hidden');
+      document.getElementById(`goalEditBtnText-${user}`).textContent = 'Edit Goal';
+      renderWeeklyGoals();
+
+      try {
+        await setDoc(doc(db, GOALS_COLLECTION, user), {
+          weeklyGoal: val,
+          updatedAt: Date.now()
+        });
+      } catch (err) {
+        console.warn("Goal saved locally:", err.message);
+      }
+    };
+
+    function getCurrentWeekRange() {
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0 (Sun) to 6 (Sat)
+      const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+      const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+
+      const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      return { start: fmt(monday), end: fmt(sunday) };
+    }
+
+    function renderWeeklyGoals() {
+      const { start, end } = getCurrentWeekRange();
+      ['peam', 'amko'].forEach(user => {
+        const target = weeklyGoals[user] || 500;
+        const weekSum = trades
+          .filter(t => t.user === user && t.date >= start && t.date <= end)
+          .reduce((s, t) => s + Number(t.amount), 0);
+
+        const rawPct = target > 0 ? (weekSum / target) * 100 : 0;
+        const barWidth = Math.max(0, Math.min(100, rawPct));
+
+        const actualEl = document.getElementById(`weekActual-${user}`);
+        const targetEl = document.getElementById(`weekTarget-${user}`);
+        const pctEl = document.getElementById(`weekPct-${user}`);
+        const barEl = document.getElementById(`weekBar-${user}`);
+        const statusEl = document.getElementById(`weekStatus-${user}`);
+
+        actualEl.textContent = formatUSD(weekSum);
+        actualEl.className = `text-lg sm:text-xl font-bold ${weekSum > 0 ? 'text-apple-green' : weekSum < 0 ? 'text-apple-red' : 'text-white'}`;
+        targetEl.textContent = `$${target.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        pctEl.textContent = `${rawPct.toFixed(0)}%`;
+        barEl.style.width = `${barWidth}%`;
+
+        if (weekSum >= target) {
+          statusEl.textContent = `🎉 Weekly goal achieved! (+${formatUSD(weekSum - target)} above target)`;
+          statusEl.className = "text-[11px] text-apple-green font-medium mt-1.5";
+        } else {
+          const remaining = target - weekSum;
+          statusEl.textContent = `Week (${start.slice(5)} to ${end.slice(5)}) • $${remaining.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} to goal`;
+          statusEl.className = "text-[11px] text-zinc-400 mt-1.5";
+        }
+      });
+    }
 
     // --- FORMAT CURRENCY ---
     function formatUSD(val) {
@@ -886,9 +1176,7 @@
         cell.className = `h-20 sm:h-28 rounded-xl sm:rounded-2xl border p-1.5 sm:p-2.5 flex flex-col justify-between cursor-pointer transition ${cardStyle}`;
         cell.onclick = () => {
           document.getElementById('tradeDate').value = dateStr;
-          const existingForActive = trades.find(t => t.date === dateStr && t.user === activeUser);
-          document.getElementById('tradeAmount').value = existingForActive ? existingForActive.amount : '';
-          document.getElementById('tradeNote').value = existingForActive ? (existingForActive.note || '') : '';
+          window.loadSelectedDateRecord();
           document.getElementById('tradeFormCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
           setTimeout(() => document.getElementById('tradeAmount').focus(), 300);
         };
@@ -979,10 +1267,91 @@
     window.renderAll = function() {
       const filtered = getFilteredTrades();
       renderKPIs(filtered);
+      renderWeeklyGoals();
       renderChart(filtered);
       renderCalendar(filtered);
       renderTable(filtered);
     };
+
+    // --- TRADING SESSIONS COUNTDOWN (ASIA, LONDON, NEW YORK) ---
+    function getZoneTimeParts(now, timeZone) {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        weekday: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: false
+      }).formatToParts(now);
+
+      const map = {};
+      parts.forEach(p => { map[p.type] = p.value; });
+      const dayMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+      return {
+        day: dayMap[map.weekday] ?? 0,
+        hour: parseInt(map.hour, 10) % 24,
+        minute: parseInt(map.minute, 10),
+        second: parseInt(map.second, 10)
+      };
+    }
+
+    function formatDurationHMS(totalSeconds) {
+      const sec = Math.max(0, Math.floor(totalSeconds));
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function updateTradingSessions() {
+      const now = new Date();
+      // Standard institutional session hours in their local market timezones
+      const sessions = [
+        { id: 'asia', tz: 'Asia/Tokyo', openHour: 9, closeHour: 18 },       // 09:00 - 18:00 JST (07:00 - 16:00 ICT)
+        { id: 'london', tz: 'Europe/London', openHour: 8, closeHour: 17 },  // 08:00 - 17:00 London
+        { id: 'ny', tz: 'America/New_York', openHour: 8, closeHour: 17 }    // 08:00 - 17:00 New York
+      ];
+
+      sessions.forEach(s => {
+        const { day, hour, minute, second } = getZoneTimeParts(now, s.tz);
+        const currentSecOfDay = hour * 3600 + minute * 60 + second;
+        const openSec = s.openHour * 3600;
+        const closeSec = s.closeHour * 3600;
+
+        const isWeekday = day >= 1 && day <= 5;
+        const isOpen = isWeekday && currentSecOfDay >= openSec && currentSecOfDay < closeSec;
+
+        const statusEl = document.getElementById(`sessStatus-${s.id}`);
+        const timerEl = document.getElementById(`sessTimer-${s.id}`);
+        const labelEl = document.getElementById(`sessLabel-${s.id}`);
+
+        if (isOpen) {
+          const remainingClose = closeSec - currentSecOfDay;
+          statusEl.textContent = "OPEN";
+          statusEl.className = "text-[10px] px-1.5 py-0.5 rounded font-semibold bg-apple-green/20 text-apple-green border border-apple-green/40";
+          timerEl.textContent = formatDurationHMS(remainingClose);
+          timerEl.className = "text-sm sm:text-base font-mono font-semibold text-apple-green";
+          labelEl.textContent = "until close";
+        } else {
+          // Calculate seconds until next open (skipping Saturday & Sunday)
+          let daysUntilOpen = 0;
+          if (day === 6) {
+            daysUntilOpen = 2; // Saturday -> Monday
+          } else if (day === 0) {
+            daysUntilOpen = 1; // Sunday -> Monday
+          } else if (currentSecOfDay >= closeSec) {
+            daysUntilOpen = (day === 5) ? 3 : 1; // Friday after close -> Monday, else tomorrow
+          }
+
+          const secondsUntilOpen = (daysUntilOpen * 86400) + (openSec - currentSecOfDay);
+          statusEl.textContent = "CLOSED";
+          statusEl.className = "text-[10px] px-1.5 py-0.5 rounded font-semibold bg-zinc-800 text-zinc-400";
+          timerEl.textContent = formatDurationHMS(secondsUntilOpen);
+          timerEl.className = "text-sm sm:text-base font-mono font-semibold text-apple-gold";
+          labelEl.textContent = "Starts in";
+        }
+      });
+    }
 
     // --- WORLD CLOCKS (THAILAND, USA, GERMANY) ---
     function updateWorldClocks() {
@@ -1014,7 +1383,7 @@
       });
     }
 
-     // --- LIVE GOLD SPOT PRICE (REAL XAU/USD PER TROY OUNCE) ---
+    // --- LIVE GOLD SPOT PRICE (REAL XAU/USD PER TROY OUNCE) ---
     let previousGoldSpot = null;
 
     window.fetchLiveGoldSpot = async function() {
@@ -1072,7 +1441,6 @@
       if (!livePrice) return;
 
       baseGoldSpot = livePrice;
-      // Standard institutional XAU/USD spot spread (~$0.30 either side of mid-price)
       const bid = baseGoldSpot - 0.30;
       const ask = baseGoldSpot + 0.30;
 
@@ -1080,7 +1448,6 @@
       bidEl.textContent = `$${bid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
       askEl.textContent = `$${ask.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
 
-      // Calculate % change from live feed or session baseline
       if (dailyPctChange === null) {
         if (previousGoldSpot === null) previousGoldSpot = baseGoldSpot;
         dailyPctChange = ((baseGoldSpot - previousGoldSpot) / previousGoldSpot) * 100;
@@ -1097,21 +1464,13 @@
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       updateWorldClocks();
-      setInterval(updateWorldClocks, 1000);
-      // Fetch real XAU/USD spot price immediately, then refresh every 15 seconds
+      updateTradingSessions();
+      setInterval(() => {
+        updateWorldClocks();
+        updateTradingSessions();
+      }, 1000);
       window.fetchLiveGoldSpot();
       setInterval(window.fetchLiveGoldSpot, 15000);
-      startRealtimeSync();
-    });
-
-
-    // --- INITIALIZE ---
-    window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      updateWorldClocks();
-      setInterval(updateWorldClocks, 1000);
-      window.fetchLiveGoldSpot();
-      setInterval(tickGoldPrice, 3500);
       startRealtimeSync();
     });
   </script>
