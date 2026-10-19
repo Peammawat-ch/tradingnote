@@ -117,12 +117,6 @@
       </div>
 
       <form onsubmit="handleLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs uppercase tracking-wider text-zinc-400 mb-1.5">Passcode / PIN</label>
-          <input type="password" inputmode="numeric" id="loginPin" value="1234" required
-            placeholder="Enter PIN (default: 1234)"
-            class="w-full rounded-xl bg-zinc-900/90 border border-zinc-800 px-4 py-3 text-sm text-white focus:outline-none focus:border-apple-gold transition" />
-        </div>
         <button type="submit"
           class="w-full rounded-xl bg-apple-gold hover:bg-apple-goldHover active:scale-[0.99] text-black font-semibold py-3.5 text-sm transition shadow-lg gold-glow">
           Enter Trading Journey
@@ -1020,38 +1014,96 @@
       });
     }
 
-    // --- LIVE GOLD SPOT PRICE (USD PER TROY OUNCE) ---
+     // --- LIVE GOLD SPOT PRICE (REAL XAU/USD PER TROY OUNCE) ---
+    let previousGoldSpot = null;
+
     window.fetchLiveGoldSpot = async function() {
+      const priceEl = document.getElementById('goldSpotPrice');
+      const bidEl = document.getElementById('goldBid');
+      const askEl = document.getElementById('goldAsk');
+      const changeEl = document.getElementById('goldSpotChange');
+
+      let livePrice = null;
+      let dailyPctChange = null;
+
+      // Source 1: Gold-API.com (Real-time XAU/USD per troy ounce, CORS enabled, no API key)
       try {
-        const res = await fetch('https://api.exchangerate-api.com/v4/latest/XAU');
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.rates && data.rates.USD) {
-            baseGoldSpot = parseFloat(data.rates.USD);
+        const res1 = await fetch('https://api.gold-api.com/price/XAU', { cache: 'no-store' });
+        if (res1.ok) {
+          const data1 = await res1.json();
+          if (data1 && typeof data1.price === 'number') {
+            livePrice = data1.price;
+            if (typeof data1.chp === 'number') dailyPctChange = data1.chp;
           }
         }
       } catch (_) {}
-      tickGoldPrice();
-    };
 
-    function tickGoldPrice() {
-      const delta = (Math.random() - 0.48) * 1.15;
-      baseGoldSpot = Math.max(2000, baseGoldSpot + delta);
-      const bid = baseGoldSpot - 0.25;
-      const ask = baseGoldSpot + 0.25;
-      const pctChange = ((baseGoldSpot - 2672.00) / 2672.00) * 100;
+      // Source 2 Fallback: GoldPrice.org live XAU/USD feed (includes exact 24h % change)
+      if (!livePrice || dailyPctChange === null) {
+        try {
+          const res2 = await fetch('https://data-asg.goldprice.org/dbXRates/USD', { cache: 'no-store' });
+          if (res2.ok) {
+            const data2 = await res2.json();
+            if (data2 && data2.items && data2.items[0]) {
+              if (!livePrice && data2.items[0].xauPrice) {
+                livePrice = parseFloat(data2.items[0].xauPrice);
+              }
+              if (dailyPctChange === null && data2.items[0].pcXau !== undefined) {
+                dailyPctChange = parseFloat(data2.items[0].pcXau);
+              }
+            }
+          }
+        } catch (_) {}
+      }
 
-      document.getElementById('goldSpotPrice').textContent = `$${baseGoldSpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
-      document.getElementById('goldBid').textContent = `$${bid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
-      document.getElementById('goldAsk').textContent = `$${ask.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
+      // Source 3 Fallback: Fawazahmed0 Currency API via JSDelivr CDN (1 XAU in USD)
+      if (!livePrice) {
+        try {
+          const res3 = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json');
+          if (res3.ok) {
+            const data3 = await res3.json();
+            if (data3 && data3.xau && data3.xau.usd) {
+              livePrice = parseFloat(data3.xau.usd);
+            }
+          }
+        } catch (_) {}
+      }
 
-      const changeEl = document.getElementById('goldSpotChange');
-      const sign = pctChange >= 0 ? '+' : '';
-      changeEl.textContent = `${sign}${pctChange.toFixed(2)}%`;
-      changeEl.className = pctChange >= 0
+      if (!livePrice) return;
+
+      baseGoldSpot = livePrice;
+      // Standard institutional XAU/USD spot spread (~$0.30 either side of mid-price)
+      const bid = baseGoldSpot - 0.30;
+      const ask = baseGoldSpot + 0.30;
+
+      priceEl.textContent = `$${baseGoldSpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
+      bidEl.textContent = `$${bid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
+      askEl.textContent = `$${ask.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/oz`;
+
+      // Calculate % change from live feed or session baseline
+      if (dailyPctChange === null) {
+        if (previousGoldSpot === null) previousGoldSpot = baseGoldSpot;
+        dailyPctChange = ((baseGoldSpot - previousGoldSpot) / previousGoldSpot) * 100;
+      }
+
+      const sign = dailyPctChange >= 0 ? '+' : '';
+      changeEl.textContent = `${sign}${dailyPctChange.toFixed(2)}%`;
+      changeEl.className = dailyPctChange >= 0
         ? "text-xs font-semibold px-2 py-0.5 rounded-lg bg-apple-green/15 text-apple-green"
         : "text-xs font-semibold px-2 py-0.5 rounded-lg bg-apple-red/15 text-apple-red";
-    }
+    };
+
+    // --- INITIALIZE ---
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      updateWorldClocks();
+      setInterval(updateWorldClocks, 1000);
+      // Fetch real XAU/USD spot price immediately, then refresh every 15 seconds
+      window.fetchLiveGoldSpot();
+      setInterval(window.fetchLiveGoldSpot, 15000);
+      startRealtimeSync();
+    });
+
 
     // --- INITIALIZE ---
     window.addEventListener('DOMContentLoaded', () => {
